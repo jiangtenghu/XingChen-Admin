@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.admin.identity.mapper.RoleMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.admin.identity.domain.entity.Role">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="tenant_id" property="tenantId" jdbcType="BIGINT"/>
+        <result column="role_name" property="roleName" jdbcType="VARCHAR"/>
+        <result column="role_key" property="roleKey" jdbcType="VARCHAR"/>
+        <result column="role_sort" property="roleSort" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="CHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="data_scope" property="dataScope" jdbcType="CHAR"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="del_flag" property="delFlag" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 根据租户ID分页查询角色 -->
+    <select id="selectRolePageByTenant" resultMap="BaseResultMap">
+        SELECT r.* FROM sys_role r
+        WHERE r.del_flag = 0
+        AND r.tenant_id = #{tenantId}
+        <if test="roleName != null and roleName != ''">
+            AND r.role_name LIKE CONCAT('%', #{roleName}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND r.status = #{status}
+        </if>
+        ORDER BY r.role_sort ASC, r.create_time DESC
+    </select>
+
+    <!-- 根据用户ID查询角色列表 -->
+    <select id="selectRolesByUserId" resultMap="BaseResultMap">
+        SELECT r.* FROM sys_role r
+        INNER JOIN sys_user_role ur ON r.id = ur.role_id
+        WHERE r.del_flag = 0
+        AND r.status = '0'
+        AND ur.user_id = #{userId}
+        ORDER BY r.role_sort ASC
+    </select>
+
+    <!-- 根据角色Key查询角色 -->
+    <select id="selectByRoleKey" resultMap="BaseResultMap">
+        SELECT * FROM sys_role
+        WHERE role_key = #{roleKey}
+        AND tenant_id = #{tenantId}
+        AND del_flag = 0
+        LIMIT 1
+    </select>
+
+    <!-- 检查角色Key是否存在 -->
+    <select id="existsByRoleKey" resultType="boolean">
+        SELECT COUNT(1) > 0 FROM sys_role
+        WHERE role_key = #{roleKey}
+        AND tenant_id = #{tenantId}
+        AND del_flag = 0
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+        LIMIT 1
+    </select>
+
+    <!-- 根据租户ID查询角色数量 -->
+    <select id="countByTenantId" resultType="int">
+        SELECT COUNT(1) FROM sys_role
+        WHERE tenant_id = #{tenantId}
+        AND del_flag = 0
+    </select>
+
+    <!-- 批量删除角色 -->
+    <update id="deleteByIds">
+        UPDATE sys_role SET del_flag = 1, update_time = NOW()
+        WHERE id IN
+        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </update>
+
+</mapper>

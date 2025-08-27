@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.admin.identity.mapper.RolePermissionMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.admin.identity.domain.entity.RolePermission">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="role_id" property="roleId" jdbcType="BIGINT"/>
+        <result column="permission_id" property="permissionId" jdbcType="BIGINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 根据角色ID删除角色权限关联 -->
+    <delete id="deleteByRoleId">
+        DELETE FROM sys_role_permission WHERE role_id = #{roleId}
+    </delete>
+
+    <!-- 根据权限ID删除角色权限关联 -->
+    <delete id="deleteByPermissionId">
+        DELETE FROM sys_role_permission WHERE permission_id = #{permissionId}
+    </delete>
+
+    <!-- 批量插入角色权限关联 -->
+    <insert id="batchInsert">
+        INSERT INTO sys_role_permission (role_id, permission_id, create_time) VALUES
+        <foreach collection="rolePermissions" item="rolePermission" separator=",">
+            (#{rolePermission.roleId}, #{rolePermission.permissionId}, #{rolePermission.createTime})
+        </foreach>
+    </insert>
+
+    <!-- 根据角色ID查询权限ID列表 -->
+    <select id="selectPermissionIdsByRoleId" resultType="java.lang.Long">
+        SELECT permission_id FROM sys_role_permission WHERE role_id = #{roleId}
+    </select>
+
+    <!-- 根据权限ID查询角色ID列表 -->
+    <select id="selectRoleIdsByPermissionId" resultType="java.lang.Long">
+        SELECT role_id FROM sys_role_permission WHERE permission_id = #{permissionId}
+    </select>
+
+    <!-- 检查角色是否拥有指定权限 -->
+    <select id="existsByRoleIdAndPermissionId" resultType="boolean">
+        SELECT COUNT(1) > 0 FROM sys_role_permission
+        WHERE role_id = #{roleId} AND permission_id = #{permissionId}
+        LIMIT 1
+    </select>
+
+    <!-- 批量删除角色权限关联 -->
+    <delete id="deleteByRoleIds">
+        DELETE FROM sys_role_permission WHERE role_id IN
+        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </delete>
+
+</mapper>

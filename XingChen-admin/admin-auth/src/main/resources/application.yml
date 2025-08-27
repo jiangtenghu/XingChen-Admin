@@ -1,0 +1,215 @@
+# OAuth 2.1 + JWT 认证服务配置
+server:
+  port: 8081
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: admin-auth
+  
+  # 数据源配置
+  datasource:
+    url: jdbc:mysql://mysql:3306/admin_identity?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+  # Redis配置
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:redis}
+      port: ${SPRING_REDIS_PORT:6379}
+      password: ${SPRING_REDIS_PASSWORD:123456}
+      database: 0
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+# OAuth 2.1配置
+oauth2:
+  issuer: http://localhost:8081
+  clients:
+    # Web管理端客户端
+    web-admin-client:
+      client-secret: web-admin-secret
+      auth-methods: 
+        - CLIENT_SECRET_BASIC
+        - CLIENT_SECRET_POST
+      grant-types:
+        - authorization_code
+        - refresh_token
+        - password  # OAuth 2.1中已废弃，但为兼容性保留
+        - client_credentials
+      redirect-uris:
+        - http://localhost:5666/auth/callback
+        - http://localhost:5666/login/oauth2/code/admin-auth
+      scopes:
+        - openid
+        - profile
+        - read
+        - write
+        - admin
+        - user
+      require-consent: false
+      require-proof-key: true
+      access-token-ttl: PT2H
+      refresh-token-ttl: P7D
+      reuse-refresh-tokens: false
+    
+    # 移动应用客户端
+    mobile-app-client:
+      # 公共客户端不需要密钥
+      auth-methods:
+        - NONE
+      grant-types:
+        - authorization_code
+        - refresh_token
+      redirect-uris:
+        - com.admin.mobile://auth/callback
+      scopes:
+        - openid
+        - profile
+        - read
+      require-consent: false
+      require-proof-key: true
+      access-token-ttl: PT1H
+      refresh-token-ttl: P3D
+      reuse-refresh-tokens: false
+    
+    # 服务间调用客户端
+    service-client:
+      client-secret: service-secret
+      auth-methods:
+        - CLIENT_SECRET_BASIC
+      grant-types:
+        - client_credentials
+      scopes:
+        - service
+        - internal
+      access-token-ttl: PT30M
+
+  # JWT配置
+  jwt:
+    key-size: 2048
+    algorithm: RS256
+    key-id: admin-auth-key
+    include-user-info: true
+    custom-claims:
+      issuer: admin-system
+      audience: admin-clients
+
+# 认证配置
+auth:
+  # 白名单路径
+  whitelist:
+    - /login
+    - /oauth2/**
+    - /.well-known/**
+    - /actuator/health
+    - /captcha/**
+    - /sms/**
+    - /swagger-ui/**
+    - /v3/api-docs/**
+    - /webjars/**
+    - /favicon.ico
+    - /error
+  
+  # 缓存配置
+  cache:
+    user-details-ttl: PT30M
+    permissions-ttl: PT1H
+    token-validation-ttl: PT5M
+    max-size: 10000
+    enable-local-cache: true
+    enable-redis-cache: true
+  
+  # Token验证配置
+  token:
+    cache:
+      ttl: 300  # Token验证结果缓存时间（秒）
+      prefix: "auth:token:"
+    blacklist:
+      prefix: "auth:blacklist:"
+  
+  # 安全配置
+  security:
+    max-login-attempts: 5
+    lockout-duration: PT30M
+    enable-captcha: true
+    captcha-threshold: 3
+    enable-ip-limit: true
+    ip-rate-limit: 100
+    enable-password-complexity: false
+    enable-two-factor: false
+  
+  # 短信配置
+  sms:
+    provider: aliyun
+    code-length: 6
+    code-ttl: PT5M
+    max-send-per-day: 10
+    send-interval: PT1M
+    template-id: SMS_123456789
+    sign-name: 管理系统
+
+# 日志配置
+logging:
+  level:
+    com.admin.auth: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/admin-auth.log
+
+# 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Swagger配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  packages-to-scan: com.admin.auth.controller
+
+# Feign配置
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 10000
+        logger-level: basic
+  httpclient:
+    enabled: true
+    max-connections: 200
+    max-connections-per-route: 50

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">XingChen Admin - 授权确认</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        
+        .consent-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo h1 {
+            color: #667eea;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .consent-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .consent-header h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .consent-header p {
+            color: #666;
+        }
+        
+        .app-info {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #667eea;
+        }
+        
+        .app-info h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .permissions {
+            margin-bottom: 2rem;
+        }
+        
+        .permissions h4 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .permission-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .permission-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .permission-item:before {
+            content: "🔐";
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+        
+        .permission-item.scope-read:before {
+            content: "👁️";
+        }
+        
+        .permission-item.scope-write:before {
+            content: "✏️";
+        }
+        
+        .permission-item.scope-profile:before {
+            content: "👤";
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-approve {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .btn-deny {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+        }
+        
+        .security-note {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #e7f3ff;
+            border-radius: 5px;
+            border: 1px solid #b3d9ff;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="consent-container">
+        <div class="logo">
+            <h1>XingChen Admin</h1>
+        </div>
+        
+        <div class="consent-header">
+            <h2>授权请求</h2>
+            <p>第三方应用请求访问您的账户</p>
+        </div>
+        
+        <div class="app-info">
+            <h3 th:text="${clientName ?: 'Unknown Application'}">应用程序</h3>
+            <p><strong>客户端ID:</strong> <span th:text="${clientId}">client-id</span></p>
+            <p><strong>重定向URI:</strong> <span th:text="${redirectUri}">redirect-uri</span></p>
+        </div>
+        
+        <div class="permissions">
+            <h4>请求的权限:</h4>
+            <ul class="permission-list">
+                <li class="permission-item scope-profile">
+                    <div>
+                        <strong>基本资料</strong><br>
+                        <small>访问您的基本用户信息（用户名、邮箱等）</small>
+                    </div>
+                </li>
+                <li class="permission-item scope-read">
+                    <div>
+                        <strong>读取权限</strong><br>
+                        <small>读取您账户中的数据</small>
+                    </div>
+                </li>
+                <li class="permission-item scope-write" th:if="${scopes.contains('write')}">
+                    <div>
+                        <strong>写入权限</strong><br>
+                        <small>修改您账户中的数据</small>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <form th:action="@{/oauth2/authorize}" method="post">
+            <!-- 隐藏字段保持OAuth参数 -->
+            <input type="hidden" name="client_id" th:value="${clientId}">
+            <input type="hidden" name="state" th:value="${state}">
+            <input type="hidden" name="scope" th:value="${scopeString}">
+            <input type="hidden" name="redirect_uri" th:value="${redirectUri}">
+            <input type="hidden" name="response_type" th:value="${responseType}">
+            <input type="hidden" name="code_challenge" th:value="${codeChallenge}">
+            <input type="hidden" name="code_challenge_method" th:value="${codeChallengeMethod}">
+            
+            <div class="buttons">
+                <button type="submit" name="user_oauth_approval" value="true" class="btn btn-approve">
+                    授权访问
+                </button>
+                <button type="submit" name="user_oauth_approval" value="false" class="btn btn-deny">
+                    拒绝访问
+                </button>
+            </div>
+        </form>
+        
+        <div class="security-note">
+            <strong>🔒 安全提示:</strong> 
+            只有在您信任此应用程序时才应授权访问。您可以随时在账户设置中撤销此授权。
+        </div>
+    </div>
+</body>
+</html>

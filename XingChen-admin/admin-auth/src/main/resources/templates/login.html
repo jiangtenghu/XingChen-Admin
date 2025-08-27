@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">XingChen Admin - 用户登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo h1 {
+            color: #667eea;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .logo p {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #fcc;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+            color: #999;
+        }
+        
+        .divider:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ddd;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+        }
+        
+        .oauth-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .oauth-info h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .oauth-info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .oauth-info li {
+            padding: 0.25rem 0;
+        }
+        
+        .oauth-info li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>XingChen Admin</h1>
+            <p>OAuth 2.1 安全认证</p>
+        </div>
+        
+        <!-- 错误信息 -->
+        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        
+        <!-- 登录表单 -->
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="请输入用户名" autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="请输入密码" autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="btn-login">登录</button>
+        </form>
+        
+        <div class="divider">
+            <span>OAuth 2.1 认证</span>
+        </div>
+        
+        <!-- OAuth信息 -->
+        <div class="oauth-info">
+            <h4>支持的认证流程</h4>
+            <ul>
+                <li>授权码流程 (Authorization Code)</li>
+                <li>客户端凭证流程 (Client Credentials)</li>
+                <li>刷新令牌流程 (Refresh Token)</li>
+                <li>PKCE支持 (移动应用)</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

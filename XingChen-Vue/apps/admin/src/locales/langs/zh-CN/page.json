@@ -1,0 +1,213 @@
+{
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "codeLogin": "验证码登录",
+    "qrcodeLogin": "二维码登录",
+    "forgetPassword": "忘记密码"
+  },
+  "dashboard": {
+    "title": "概览",
+    "analytics": "分析页",
+    "workspace": "工作台"
+  },
+  "user": {
+    "moduleName": "用户",
+    "form": {
+      "real_name": "用户名称",
+      "mobile": "手机号码",
+      "roleId": "角色",
+      "oldPassword": "当前密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码"
+    },
+    "table": {
+      "seq": "编号",
+      "username": "用户名",
+      "nickname": "昵称",
+      "realname": "姓名",
+      "avatar": "头像",
+      "email": "邮箱",
+      "mobile": "手机",
+      "telephone": "座机号",
+      "gender": "性别",
+      "address": "住址",
+      "region": "国家地区",
+      "description": "个人描述",
+      "last_login_time": "最后登录时间",
+      "last_login_ip": "最后登录IP",
+      "authority": "权限",
+      "roleId": "角色",
+      "workId": "工号",
+      "orgId": "所属组织",
+      "positionId": "所属岗位",
+      "tenantId": "所属租户",
+      "deptId": "所属部门"
+    },
+    "button": {
+      "create": "创建账号",
+      "editPassword": "修改密码",
+      "banAccount": "禁用账号"
+    },
+    "tab": {
+      "detail": "用户资料",
+      "log": "操作日志"
+    },
+    "detailTitle": "用户{userId}的资料"
+  },
+  "role": {
+    "moduleName": "角色",
+    "name": "角色名称",
+    "code": "角色值",
+    "button": {
+      "create": "创建角色"
+    }
+  },
+  "dept": {
+    "moduleName": "部门",
+    "name": "部门名称",
+    "parentId": "上级部门",
+    "button": {
+      "create": "创建部门"
+    }
+  },
+  "dict": {
+    "moduleName": "字典",
+    "key": "字典键",
+    "category": "字典类型",
+    "categoryDesc": "字典类型名称",
+    "value": "字典值",
+    "valueDesc": "字典值名称",
+    "button": {
+      "create": "创建条目"
+    }
+  },
+  "menu": {
+    "moduleName": "菜单",
+    "name": "菜单名称",
+    "type": "菜单类型",
+    "icon": "图标",
+    "path": "路由地址",
+    "component": "组件路径",
+    "show": "是否显示",
+    "isExt": "是否外链",
+    "keepAlive": "是否缓存",
+    "parentId": "上级菜单",
+    "button": {
+      "create": "创建菜单"
+    }
+  },
+  "org": {
+    "moduleName": "组织",
+    "name": "组织名称",
+    "parentId": "上级组织",
+    "button": {
+      "create": "创建组织"
+    }
+  },
+  "position": {
+    "moduleName": "职位",
+    "name": "职位名称",
+    "button": {
+      "create": "创建职位"
+    }
+  },
+  "tenant": {
+    "moduleName": "租户",
+    "name": "租户名称",
+    "code": "租户编码",
+    "button": {
+      "create": "创建租户"
+    }
+  },
+  "file": {
+    "moduleName": "文件",
+    "fileName": "文件名",
+    "saveFileName": "保存文件名",
+    "bucketName": "存储桶",
+    "fileDirectory": "目录",
+    "provider": "供应商",
+    "fileGuid": "GUID",
+    "size": "大小",
+    "uploader": "上传者",
+    "button": {
+      "create": "创建文件"
+    }
+  },
+  "task": {
+    "moduleName": "任务",
+    "type": "调度类型",
+    "typeName": "任务名",
+    "taskPayload": "任务参数",
+    "cronSpec": "cron表达式",
+    "enable": "启用状态",
+    "button": {
+      "create": "创建任务"
+    }
+  },
+  "notificationMessage": {
+    "moduleName": "通知消息",
+    "subject": "通知主题",
+    "categoryName": "消息分类",
+    "button": {
+      "create": "创建通知"
+    }
+  },
+  "notificationMessageCategory": {
+    "moduleName": "通知类型",
+    "name": "类型名称",
+    "button": {
+      "create": "创建类型"
+    }
+  },
+  "privateMessage": {
+    "moduleName": "私信消息",
+    "subject": "私信主题",
+    "button": {
+      "create": "创建私信"
+    }
+  },
+  "adminLoginLog": {
+    "moduleName": "登录日志",
+    "username": "登录名",
+    "success": "登录状态",
+    "loginTime": "登录时间",
+    "location": "登录地",
+    "clientName": "登录平台",
+    "loginIp": "登录地址"
+  },
+  "adminOperationLog": {
+    "moduleName": "操作日志",
+    "username": "操作者名",
+    "success": "操作状态",
+    "location": "操作地",
+    "clientName": "操作平台",
+    "clientIp": "操作地址",
+    "createTime": "操作时间",
+    "path": "路径",
+    "method": "方法"
+  },
+  "apiResource": {
+    "moduleName": "API资源",
+    "path": "路径",
+    "method": "方法",
+    "module": "模块",
+    "moduleDescription": "模块描述",
+    "operation": "操作",
+    "button": {
+      "create": "创建API",
+      "sync": "同步API"
+    }
+  },
+  "adminLoginRestriction": {
+    "moduleName": "登录限制",
+    "targetId": "目标用户ID",
+    "type": "限制类型",
+    "method": "限制方式",
+    "value": "限制值",
+    "reason": "限制原因",
+    "button": {
+      "create": "创建限制"
+    }
+  }
+}

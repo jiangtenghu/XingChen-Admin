@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.admin.identity.mapper.PermissionMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.admin.identity.domain.entity.Permission">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="permission_name" property="permissionName" jdbcType="VARCHAR"/>
+        <result column="permission_key" property="permissionKey" jdbcType="VARCHAR"/>
+        <result column="permission_type" property="permissionType" jdbcType="CHAR"/>
+        <result column="parent_id" property="parentId" jdbcType="BIGINT"/>
+        <result column="sort_order" property="sortOrder" jdbcType="INTEGER"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="component" property="component" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="CHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="del_flag" property="delFlag" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 分页查询权限 -->
+    <select id="selectPermissionPage" resultMap="BaseResultMap">
+        SELECT * FROM sys_permission
+        WHERE del_flag = 0
+        <if test="permissionName != null and permissionName != ''">
+            AND permission_name LIKE CONCAT('%', #{permissionName}, '%')
+        </if>
+        <if test="permissionType != null and permissionType != ''">
+            AND permission_type = #{permissionType}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        ORDER BY sort_order ASC, create_time DESC
+    </select>
+
+    <!-- 根据角色ID查询权限列表 -->
+    <select id="selectPermissionsByRoleId" resultMap="BaseResultMap">
+        SELECT p.* FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.permission_id
+        WHERE p.del_flag = 0
+        AND p.status = '0'
+        AND rp.role_id = #{roleId}
+        ORDER BY p.sort_order ASC
+    </select>
+
+    <!-- 根据用户ID查询权限列表 -->
+    <select id="selectPermissionsByUserId" resultMap="BaseResultMap">
+        SELECT DISTINCT p.* FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.permission_id
+        INNER JOIN sys_user_role ur ON rp.role_id = ur.role_id
+        WHERE p.del_flag = 0
+        AND p.status = '0'
+        AND ur.user_id = #{userId}
+        ORDER BY p.sort_order ASC
+    </select>
+
+    <!-- 根据权限Key查询权限 -->
+    <select id="selectByPermissionKey" resultMap="BaseResultMap">
+        SELECT * FROM sys_permission
+        WHERE permission_key = #{permissionKey}
+        AND del_flag = 0
+        LIMIT 1
+    </select>
+
+    <!-- 检查权限Key是否存在 -->
+    <select id="existsByPermissionKey" resultType="boolean">
+        SELECT COUNT(1) > 0 FROM sys_permission
+        WHERE permission_key = #{permissionKey}
+        AND del_flag = 0
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+        LIMIT 1
+    </select>
+
+    <!-- 根据父权限ID查询子权限 -->
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        SELECT * FROM sys_permission
+        WHERE parent_id = #{parentId}
+        AND del_flag = 0
+        ORDER BY sort_order ASC
+    </select>
+
+    <!-- 查询菜单类型权限树 -->
+    <select id="selectMenuPermissions" resultMap="BaseResultMap">
+        SELECT * FROM sys_permission
+        WHERE permission_type IN ('M', 'C')
+        AND status = '0'
+        AND del_flag = 0
+        ORDER BY sort_order ASC
+    </select>
+
+    <!-- 批量删除权限 -->
+    <update id="deleteByIds">
+        UPDATE sys_permission SET del_flag = 1, update_time = NOW()
+        WHERE id IN
+        <foreach collection="permissionIds" item="permissionId" open="(" separator="," close=")">
+            #{permissionId}
+        </foreach>
+    </update>
+
+</mapper>

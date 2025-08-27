@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.admin.identity.mapper.UserOrganizationMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.admin.identity.domain.entity.UserOrganization">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="organization_id" property="organizationId" jdbcType="BIGINT"/>
+        <result column="is_primary" property="isPrimary" jdbcType="TINYINT"/>
+        <result column="position" property="position" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 根据用户ID删除用户组织关联 -->
+    <delete id="deleteByUserId">
+        DELETE FROM sys_user_organization WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 根据组织ID删除用户组织关联 -->
+    <delete id="deleteByOrganizationId">
+        DELETE FROM sys_user_organization WHERE organization_id = #{organizationId}
+    </delete>
+
+    <!-- 批量插入用户组织关联 -->
+    <insert id="batchInsert">
+        INSERT INTO sys_user_organization (user_id, organization_id, is_primary, position, create_time, update_time) VALUES
+        <foreach collection="userOrganizations" item="userOrg" separator=",">
+            (#{userOrg.userId}, #{userOrg.organizationId}, #{userOrg.isPrimary}, #{userOrg.position}, #{userOrg.createTime}, #{userOrg.updateTime})
+        </foreach>
+    </insert>
+
+    <!-- 根据用户ID查询组织ID列表 -->
+    <select id="selectOrganizationIdsByUserId" resultType="java.lang.Long">
+        SELECT organization_id FROM sys_user_organization WHERE user_id = #{userId}
+    </select>
+
+    <!-- 根据组织ID查询用户ID列表 -->
+    <select id="selectUserIdsByOrganizationId" resultType="java.lang.Long">
+        SELECT user_id FROM sys_user_organization WHERE organization_id = #{organizationId}
+    </select>
+
+    <!-- 检查用户是否属于指定组织 -->
+    <select id="existsByUserIdAndOrganizationId" resultType="boolean">
+        SELECT COUNT(1) > 0 FROM sys_user_organization
+        WHERE user_id = #{userId} AND organization_id = #{organizationId}
+        LIMIT 1
+    </select>
+
+    <!-- 根据用户ID查询主要组织 -->
+    <select id="selectPrimaryByUserId" resultMap="BaseResultMap">
+        SELECT * FROM sys_user_organization
+        WHERE user_id = #{userId} AND is_primary = 1
+        LIMIT 1
+    </select>
+
+    <!-- 设置用户主要组织 -->
+    <update id="updatePrimaryOrganization">
+        UPDATE sys_user_organization SET is_primary = 0 WHERE user_id = #{userId};
+        UPDATE sys_user_organization SET is_primary = 1, update_time = NOW()
+        WHERE user_id = #{userId} AND organization_id = #{organizationId};
+    </update>
+
+</mapper>

@@ -1,0 +1,212 @@
+{
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "codeLogin": "Code Login",
+    "qrcodeLogin": "Qr Code Login",
+    "forgetPassword": "Forget Password"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "analytics": "Analytics",
+    "workspace": "Workspace"
+  },
+  "user": {
+    "moduleName": "User",
+    "form": {
+      "real_name": "UserName",
+      "mobile": "Phone",
+      "roleId": "Role",
+      "oldPassword": "Old Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password"
+    },
+    "table": {
+      "seq": "Seq",
+      "username": "User Name",
+      "nickname": "Nick Name",
+      "realname": "Real Name",
+      "avatar": "Avatar",
+      "email": "Email",
+      "mobile": "Phone",
+      "telephone": "Telephone",
+      "gender": "Gender",
+      "address": "Address",
+      "region": "Region",
+      "description": "Description",
+      "last_login_time": "Last Login Time",
+      "last_login_ip": "Last Login IP",
+      "authority": "Authority",
+      "roleId": "Role",
+      "workId": "Work",
+      "orgId": "Organization",
+      "positionId": "Position",
+      "tenantId": "Tenant",
+      "deptId": "Department"
+    },
+    "button": {
+      "create": "Create",
+      "editPassword": "Edit Password",
+      "banAccount": "Ban Account"
+    },
+    "tab": {
+      "detail": "User Detail",
+      "log": "Operation Log"
+    },
+    "detailTitle": "{userId}'s information"
+  },
+  "role": {
+    "moduleName": "Role",
+    "name": "Name",
+    "code": "Code",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "dept": {
+    "moduleName": "Department",
+    "name": "Department Name",
+    "parentId": "Parent Department",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "dict": {
+    "moduleName": "Dict",
+    "key": "Key",
+    "category": "Category",
+    "categoryDesc": "Category Desc",
+    "value": "value",
+    "valueDesc": "Value Desc",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "menu": {
+    "moduleName": "Menu",
+    "name": "Menu Name",
+    "type": "Menu Type",
+    "icon": "Icon",
+    "path": "Path",
+    "component": "Component",
+    "show": "Show",
+    "isExt": "Is Ext",
+    "keepAlive": "Keep Alive",
+    "parentId": "Parent Menu",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "org": {
+    "moduleName": "Organization",
+    "name": "Organization Name",
+    "parentId": "Parent Organization",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "position": {
+    "moduleName": "Position",
+    "name": "Position Name",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "tenant": {
+    "moduleName": "Tenant",
+    "name": "Tenant Name",
+    "code": "Tenant Code",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "file": {
+    "moduleName": "File",
+    "fileName": "File Name",
+    "saveFileName": "Save File Name",
+    "bucketName": "Bucket Name",
+    "fileDirectory": "Directory",
+    "provider": "Provider",
+    "fileGuid": "GUID",
+    "size": "Size",
+    "uploader": "Uploader",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "task": {
+    "moduleName": "Task",
+    "type": "Type",
+    "typeName": "Type Name",
+    "taskPayload": "Task Payload",
+    "cronSpec": "Cron Spec",
+    "enable": "Enable",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "notificationMessage": {
+    "moduleName": "Notification",
+    "subject": "Subject",
+    "categoryName": "Category",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "notificationMessageCategory": {
+    "moduleName": "Notification Message Category",
+    "name": "Name",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "privateMessage": {
+    "moduleName": "Private Message",
+    "subject": "Subject",
+    "button": {
+      "create": "Create"
+    }
+  },
+  "adminLoginLog": {
+    "moduleName": "Login Log",
+    "username": "User Name",
+    "success": "Success",
+    "loginTime": "Login Time",
+    "location": "Location",
+    "clientName": "Platform",
+    "loginIp": "Login IP"
+  },
+  "adminOperationLog": {
+    "moduleName": "Operation Log",
+    "username": "User Name",
+    "success": "Success",
+    "location": "Location",
+    "clientName": "Platform",
+    "clientIp": "Client IP",
+    "createTime": "Operation Time",
+    "path": "Path",
+    "method": "Method"
+  },
+  "apiResource": {
+    "moduleName": "API Resource",
+    "path": "Path",
+    "method": "Method",
+    "module": "Module",
+    "operation": "Operation",
+    "button": {
+      "create": "Create API",
+      "sync": "Sync API"
+    }
+  },
+  "adminLoginRestriction": {
+    "moduleName": "Login Restriction",
+    "targetId": "Target User ID",
+    "type": "Restriction Type",
+    "method": "Restriction Method",
+    "value": "Restriction Value",
+    "reason": "Restriction Reason",
+    "button": {
+      "create": "Create"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "status": {
+    "ON": "正常",
+    "OFF": "停用"
+  },
+  "enable": {
+    "true": "启用",
+    "false": "禁用"
+  },
+  "authority": {
+    "GUEST": "游客",
+    "CUSTOMER_USER": "普通用户",
+    "TENANT_ADMIN": "租户管理",
+    "SYS_ADMIN": "超级管理"
+  },
+  "menuType": {
+    "FOLDER": "目录",
+    "MENU": "菜单",
+    "BUTTON": "按钮"
+  },
+  "successStatus": {
+    "success": "成功",
+    "failed": "失败"
+  },
+  "taskType" : {
+    "Periodic": "周期性",
+    "Delay": "延时任务",
+    "WaitResult": "等待结果"
+  },
+  "gender": {
+    "SECRET": "未知",
+    "MALE": "男性",
+    "FEMALE": "女性"
+  },
+  "adminLoginRestrictionType": {
+    "BLACKLIST": "黑名单",
+    "WHITELIST": "白名单"
+  },
+  "adminLoginRestrictionMethod": {
+    "IP": "IP地址限制",
+    "MAC": "MAC地址限制",
+    "REGION": "地区限制",
+    "TIME": "时间限制",
+    "DEVICE": "设备限制"
+  }
+}

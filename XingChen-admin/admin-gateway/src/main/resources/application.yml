@@ -1,0 +1,211 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: admin-gateway
+  profiles:
+    active: dev
+  main:
+    web-application-type: reactive
+    allow-circular-references: true
+  # Redis配置
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:redis}
+      port: ${SPRING_REDIS_PORT:6379}
+      password: ${SPRING_REDIS_PASSWORD:123456}
+      database: 0
+      timeout: 10s
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
+        namespace: public
+        group: DEFAULT_GROUP
+    gateway:
+      discovery:
+        locator:
+          enabled: false  # 禁用自动发现，使用明确路由
+          lower-case-service-id: true
+      routes:
+        # 用户身份服务 - 统一/api前缀
+        - id: admin-identity
+          uri: lb://admin-identity
+          predicates:
+            - Path=/api/identity/**
+        # 系统服务 - 统一/api前缀
+        - id: admin-system
+          uri: lb://admin-system
+          predicates:
+            - Path=/api/system/**
+        # 认证服务 - 统一/api前缀
+        - id: admin-auth
+          uri: lb://admin-auth
+          predicates:
+            - Path=/api/auth/**
+        # Swagger文档路由 - 用户身份服务
+        - id: admin-identity-docs
+          uri: lb://admin-identity
+          predicates:
+            - Path=/identity/v3/api-docs
+          filters:
+            - StripPrefix=1
+        # Swagger文档路由 - 系统服务
+        - id: admin-system-docs
+          uri: lb://admin-system
+          predicates:
+            - Path=/system/v3/api-docs
+          filters:
+            - StripPrefix=1
+        # Swagger文档路由 - 认证服务
+        - id: admin-auth-docs
+          uri: lb://admin-auth
+          predicates:
+            - Path=/auth/v3/api-docs
+      # globalcors配置已移除，使用CorsConfig.java中的配置避免冲突
+      # globalcors:
+      #   corsConfigurations:
+      #     '[/**]':
+      #       allowedOriginPatterns: 
+      #         - "http://localhost:*"
+      #         - "https://localhost:*"
+      #       allowedMethods: 
+      #         - GET
+      #         - POST
+      #         - PUT
+      #         - DELETE
+      #         - OPTIONS
+      #         - HEAD
+      #         - PATCH
+      #       allowedHeaders: 
+      #         - "*"
+      #       exposedHeaders:
+      #         - "Content-Type"
+      #         - "Authorization"
+      #         - "X-Requested-With"
+      #         - "Accept"
+      #         - "Accept-Language"
+      #       allowCredentials: true
+      #       maxAge: 3600
+
+# CORS配置 - 支持不同环境的灵活配置
+cors:
+  # 生产环境允许的具体域名（优先级高于patterns）
+  allowed-origins:
+    # - "https://admin.company.com"
+    # - "https://www.company.com"
+  
+  # 生产环境允许的域名模式（当origins为空时生效）
+  allowed-origin-patterns:
+    # - "https://*.company.com"
+    # - "https://*.example.org"
+  
+  # 预检请求缓存时间（秒）
+  max-age: 3600
+  
+  # 是否允许携带凭据
+  allow-credentials: true
+
+# JWT配置
+jwt:
+  secret: mySecretKey123456789012345678901234567890
+  expiration: 86400
+
+# 网关配置 - 统一认证模式
+gateway:
+  auth:
+    # 白名单路径配置
+    skip-urls: 
+      - "/api/auth/**"
+      - "/api/identity/check-**"
+      - "/api/identity/test"
+      - "/actuator/**"
+      - "/doc.html"
+      - "/webjars/**"
+      - "/swagger-resources/**"
+      - "/v3/api-docs/**"
+      - "/swagger-ui/**"
+      - "/swagger-ui.html"
+    # 缓存配置
+    cache:
+      enabled: true
+      ttl: 300  # Token验证结果缓存时间（秒）
+      key-prefix: "gateway:auth:"
+  routing:
+    timeout: 30s
+    retry:
+      attempts: 3
+
+# Feign配置
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 10000
+        logger-level: basic
+      admin-auth:
+        connect-timeout: 3000
+        read-timeout: 5000
+        logger-level: full
+  httpclient:
+    enabled: true
+    max-connections: 200
+    max-connections-per-route: 50
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+  hystrix:
+    enabled: true
+
+# Hystrix配置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+      circuitBreaker:
+        enabled: true
+        requestVolumeThreshold: 20
+        errorThresholdPercentage: 50
+        sleepWindowInMilliseconds: 5000
+
+
+
+# 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+    zipkin:
+      endpoint: http://localhost:9411/api/v2/spans
+
+# 日志配置
+logging:
+  level:
+    com.admin.gateway: debug
+    org.springframework.cloud.gateway: debug
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{50} - %msg%n'

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.admin.identity.mapper.TenantMapper">
+
+    <!-- 租户响应DTO结果映射 -->
+    <resultMap id="TenantResponseDTOMap" type="com.admin.identity.domain.dto.TenantResponseDTO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="type" property="type"/>
+        <result column="status" property="status"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="parent_name" property="parentName"/>
+        <result column="level" property="level"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="contact_email" property="contactEmail"/>
+        <result column="industry" property="industry"/>
+        <result column="scale" property="scale"/>
+        <result column="region" property="region"/>
+        <result column="business_license" property="businessLicense"/>
+        <result column="max_users" property="maxUsers"/>
+        <result column="current_users" property="currentUsers"/>
+        <result column="max_storage" property="maxStorage"/>
+        <result column="current_storage" property="currentStorage"/>
+        <result column="max_departments" property="maxDepartments"/>
+        <result column="current_departments" property="currentDepartments"/>
+        <result column="max_roles" property="maxRoles"/>
+        <result column="current_roles" property="currentRoles"/>
+        <result column="package_id" property="packageId"/>
+        <result column="package_name" property="packageName"/>
+        <result column="expire_time" property="expireTime"/>
+        <result column="domain" property="domain"/>
+        <result column="logo" property="logo"/>
+        <result column="feature_config" property="featureConfig" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="theme_config" property="themeConfig" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="security_config" property="securityConfig" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 分页查询租户列表 -->
+    <select id="selectTenantPage" resultMap="TenantResponseDTOMap">
+        SELECT 
+            t.id,
+            t.name,
+            t.code,
+            t.type,
+            t.status,
+            t.parent_id,
+            pt.name as parent_name,
+            t.level,
+            t.sort_order,
+            t.contact_person,
+            t.contact_phone,
+            t.contact_email,
+            t.industry,
+            t.scale,
+            t.region,
+            t.business_license,
+            t.max_users,
+            COALESCE(us.user_count, 0) as current_users,
+            t.max_storage,
+            0 as current_storage,
+            t.max_departments,
+            COALESCE(os.org_count, 0) as current_departments,
+            t.max_roles,
+            COALESCE(rs.role_count, 0) as current_roles,
+            t.package_id,
+            tp.package_name,
+            t.expire_time,
+            t.domain,
+            t.logo,
+            t.feature_config,
+            t.theme_config,
+            t.security_config,
+            t.create_by,
+            t.create_time,
+            t.update_by,
+            t.update_time,
+            t.remark
+        FROM sys_tenant t
+        LEFT JOIN sys_tenant pt ON t.parent_id = pt.id
+        LEFT JOIN sys_tenant_package tp ON t.package_id = tp.id
+        LEFT JOIN (
+            SELECT tenant_id, COUNT(*) as user_count 
+            FROM sys_user 
+            WHERE del_flag = 0 
+            GROUP BY tenant_id
+        ) us ON t.id = us.tenant_id
+        LEFT JOIN (
+            SELECT tenant_id, COUNT(*) as org_count 
+            FROM sys_organization 
+            WHERE del_flag = 0 
+            GROUP BY tenant_id
+        ) os ON t.id = os.tenant_id
+        LEFT JOIN (
+            SELECT tenant_id, COUNT(*) as role_count 
+            FROM sys_role 
+            WHERE del_flag = 0 
+            GROUP BY tenant_id
+        ) rs ON t.id = rs.tenant_id
+        WHERE t.del_flag = 0
+        <if test="query.name != null and query.name != ''">
+            AND t.name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+        <if test="query.code != null and query.code != ''">
+            AND t.code LIKE CONCAT('%', #{query.code}, '%')
+        </if>
+        <if test="query.type != null and query.type != ''">
+            AND t.type = #{query.type}
+        </if>
+        <if test="query.status != null and query.status != ''">
+            AND t.status = #{query.status}
+        </if>
+        <if test="query.parentId != null">
+            AND t.parent_id = #{query.parentId}
+        </if>
+        <if test="query.contactPerson != null and query.contactPerson != ''">
+            AND t.contact_person LIKE CONCAT('%', #{query.contactPerson}, '%')
+        </if>
+        <if test="query.contactPhone != null and query.contactPhone != ''">
+            AND t.contact_phone = #{query.contactPhone}
+        </if>
+        <if test="query.contactEmail != null and query.contactEmail != ''">
+            AND t.contact_email = #{query.contactEmail}
+        </if>
+        <if test="query.industry != null and query.industry != ''">
+            AND t.industry = #{query.industry}
+        </if>
+        <if test="query.scale != null and query.scale != ''">
+            AND t.scale = #{query.scale}
+        </if>
+        <if test="query.region != null and query.region != ''">
+            AND t.region LIKE CONCAT('%', #{query.region}, '%')
+        </if>
+        <if test="query.packageId != null">
+            AND t.package_id = #{query.packageId}
+        </if>
+        <if test="query.createTimeStart != null">
+            AND t.create_time >= #{query.createTimeStart}
+        </if>
+        <if test="query.createTimeEnd != null">
+            AND t.create_time &lt;= #{query.createTimeEnd}
+        </if>
+        <if test="query.expireTimeStart != null">
+            AND t.expire_time >= #{query.expireTimeStart}
+        </if>
+        <if test="query.expireTimeEnd != null">
+            AND t.expire_time &lt;= #{query.expireTimeEnd}
+        </if>
+        ORDER BY 
+        <choose>
+            <when test="query.orderBy != null and query.orderBy != ''">
+                ${query.orderBy}
+                <if test="query.sortOrder != null and query.sortOrder != ''">
+                    ${query.sortOrder}
+                </if>
+            </when>
+            <otherwise>
+                t.create_time DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 根据ID查询租户详情 -->
+    <select id="selectTenantDetailById" resultMap="TenantResponseDTOMap">
+        SELECT 
+            t.id,
+            t.name,
+            t.code,
+            t.type,
+            t.status,
+            t.parent_id,
+            pt.name as parent_name,
+            t.level,
+            t.sort_order,
+            t.contact_person,
+            t.contact_phone,
+            t.contact_email,
+            t.industry,
+            t.scale,
+            t.region,
+            t.business_license,
+            t.max_users,
+            COALESCE(us.user_count, 0) as current_users,
+            t.max_storage,
+            0 as current_storage,
+            t.max_departments,
+            COALESCE(os.org_count, 0) as current_departments,
+            t.max_roles,
+            COALESCE(rs.role_count, 0) as current_roles,
+            t.package_id,
+            tp.package_name,
+            t.expire_time,
+            t.domain,
+            t.logo,
+            t.feature_config,
+            t.theme_config,
+            t.security_config,
+            t.create_by,
+            t.create_time,
+            t.update_by,
+            t.update_time,
+            t.remark
+        FROM sys_tenant t
+        LEFT JOIN sys_tenant pt ON t.parent_id = pt.id
+        LEFT JOIN sys_tenant_package tp ON t.package_id = tp.id
+        LEFT JOIN (
+            SELECT tenant_id, COUNT(*) as user_count 
+            FROM sys_user 
+            WHERE del_flag = 0 
+            GROUP BY tenant_id
+        ) us ON t.id = us.tenant_id
+        LEFT JOIN (
+            SELECT tenant_id, COUNT(*) as org_count 
+            FROM sys_organization 
+            WHERE del_flag = 0 
+            GROUP BY tenant_id
+        ) os ON t.id = os.tenant_id
+        LEFT JOIN (
+            SELECT tenant_id, COUNT(*) as role_count 
+            FROM sys_role 
+            WHERE del_flag = 0 
+            GROUP BY tenant_id
+        ) rs ON t.id = rs.tenant_id
+        WHERE t.id = #{id} AND t.del_flag = 0
+    </select>
+
+    <!-- 查询子租户列表 -->
+    <select id="selectSubTenants" resultMap="TenantResponseDTOMap">
+        SELECT 
+            t.id,
+            t.name,
+            t.code,
+            t.type,
+            t.status,
+            t.parent_id,
+            t.level,
+            t.sort_order,
+            t.contact_person,
+            t.contact_phone,
+            t.contact_email,
+            t.industry,
+            t.scale,
+            t.region,
+            t.max_users,
+            COALESCE(us.user_count, 0) as current_users,
+            t.max_storage,
+            t.max_departments,
+            COALESCE(os.org_count, 0) as current_departments,
+            t.max_roles,
+            COALESCE(rs.role_count, 0) as current_roles,
+            t.package_id,
+            tp.package_name,
+            t.expire_time,
+            t.create_time,
+            t.update_time
+        FROM sys_tenant t
+        LEFT JOIN sys_tenant_package tp ON t.package_id = tp.id
+        LEFT JOIN (
+            SELECT tenant_id, COUNT(*) as user_count 
+            FROM sys_user 
+            WHERE del_flag = 0 
+            GROUP BY tenant_id
+        ) us ON t.id = us.tenant_id
+        LEFT JOIN (
+            SELECT tenant_id, COUNT(*) as org_count 
+            FROM sys_organization 
+            WHERE del_flag = 0 
+            GROUP BY tenant_id
+        ) os ON t.id = os.tenant_id
+        LEFT JOIN (
+            SELECT tenant_id, COUNT(*) as role_count 
+            FROM sys_role 
+            WHERE del_flag = 0 
+            GROUP BY tenant_id
+        ) rs ON t.id = rs.tenant_id
+        WHERE t.parent_id = #{parentId} AND t.del_flag = 0
+        ORDER BY t.sort_order ASC, t.create_time DESC
+    </select>
+
+    <!-- 查询即将过期的租户 -->
+    <select id="selectExpiringTenants" resultType="com.admin.identity.domain.entity.Tenant">
+        SELECT * FROM sys_tenant 
+        WHERE del_flag = 0 
+        AND status = 'ACTIVE'
+        AND expire_time IS NOT NULL 
+        AND expire_time BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL #{days} DAY)
+        ORDER BY expire_time ASC
+    </select>
+
+    <!-- 查询已过期的租户 -->
+    <select id="selectExpiredTenants" resultType="com.admin.identity.domain.entity.Tenant">
+        SELECT * FROM sys_tenant 
+        WHERE del_flag = 0 
+        AND status IN ('ACTIVE', 'SUSPENDED')
+        AND expire_time IS NOT NULL 
+        AND expire_time &lt; NOW()
+        ORDER BY expire_time ASC
+    </select>
+
+    <!-- 批量更新租户状态 -->
+    <update id="batchUpdateStatus">
+        UPDATE sys_tenant 
+        SET status = #{status}, 
+            update_by = #{updateBy}, 
+            update_time = NOW()
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND del_flag = 0
+    </update>
+
+</mapper>

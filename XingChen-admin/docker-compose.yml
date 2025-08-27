@@ -1,0 +1,221 @@
+# Docker Compose 配置文件
+
+networks:
+  xingchen-admin:
+    driver: bridge
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+      # 允许从任何主机连接root用户
+      MYSQL_ROOT_HOST: '%'
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # 添加自定义初始化脚本
+      - ./sql/init-permissions.sql:/docker-entrypoint-initdb.d/init-permissions.sql
+    command: 
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --init-connect=SET NAMES utf8mb4
+      - --skip-character-set-client-handshake
+      # 网络配置：允许外部连接但保持主机名解析
+      - --bind-address=0.0.0.0
+      - --explicit_defaults_for_timestamp=1
+    networks:
+      - xingchen-admin
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass 123456 --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - xingchen-admin
+
+  # Nacos 服务注册与配置中心
+  nacos:
+    image: nacos/nacos-server:v2.2.3-slim
+    container_name: nacos
+    restart: always
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: false
+      NACOS_AUTH_TOKEN: SecretKey012345678901234567890123456789012345678901234567890123456789
+      NACOS_AUTH_IDENTITY_KEY: nacos
+      NACOS_AUTH_IDENTITY_VALUE: nacos
+    volumes:
+      - nacos_data:/home/nacos/data
+    depends_on:
+      - mysql
+    networks:
+      - xingchen-admin
+
+  # Prometheus 监控
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - xingchen-admin
+
+  # Grafana 可视化
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - xingchen-admin
+
+  # Zipkin 链路追踪
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    restart: always
+    ports:
+      - "9411:9411"
+    environment:
+      STORAGE_TYPE: mem
+    networks:
+      - xingchen-admin
+
+  # API 网关
+  admin-gateway:
+    build:
+      context: ./admin-gateway
+      dockerfile: Dockerfile
+    container_name: admin-gateway
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: nacos:8848
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PASSWORD: 123456
+    depends_on:
+      - nacos
+      - redis
+    networks:
+      - xingchen-admin
+
+  # 认证服务
+  admin-auth:
+    build:
+      context: ./admin-auth
+      dockerfile: Dockerfile
+    container_name: admin-auth
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: nacos:8848
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/admin_auth?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PASSWORD: 123456
+    depends_on:
+      - mysql
+      - nacos
+      - redis
+    networks:
+      - xingchen-admin
+
+  # 统一身份管理服务
+  admin-identity:
+    build:
+      context: ./admin-identity
+      dockerfile: Dockerfile
+    container_name: admin-identity
+    restart: always
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: nacos:8848
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/admin_identity?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PASSWORD: 123456
+    depends_on:
+      - mysql
+      - nacos
+      - redis
+    networks:
+      - xingchen-admin
+
+  # 系统配置服务
+  admin-system:
+    build:
+      context: ./admin-system
+      dockerfile: Dockerfile
+    container_name: admin-system
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: nacos:8848
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/admin_system?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PASSWORD: 123456
+    depends_on:
+      - mysql
+      - nacos
+      - redis
+    networks:
+      - xingchen-admin
+
+volumes:
+  mysql_data:
+  redis_data:
+  nacos_data:
+  prometheus_data:
+  grafana_data:

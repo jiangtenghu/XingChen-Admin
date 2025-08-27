@@ -1,0 +1,46 @@
+{
+  "status": {
+    "ON": "ON",
+    "OFF": "OFF"
+  },
+  "enable": {
+    "true": "Enable",
+    "false": "Disable"
+  },
+  "authority": {
+    "GUEST": "Guest",
+    "CUSTOMER_USER": "Customer",
+    "TENANT_ADMIN": "Tenant Admin",
+    "SYS_ADMIN": "Admin"
+  },
+  "menuType": {
+    "FOLDER": "Folder",
+    "MENU": "Menu",
+    "BUTTON": "Button"
+  },
+  "successStatus": {
+    "success": "Success",
+    "failed": "Failed"
+  },
+  "taskType" : {
+    "Periodic": "Periodic",
+    "Delay": "Delay",
+    "WaitResult": "Wait Result"
+  },
+  "gender": {
+    "SECRET": "Secret",
+    "MALE": "Male",
+    "FEMALE": "Female"
+  },
+  "adminLoginRestrictionType": {
+    "BLACKLIST": "Blacklist",
+    "WHITELIST": "Whitelist"
+  },
+  "adminLoginRestrictionMethod": {
+    "IP": "IP Address",
+    "MAC": "MAC Address",
+    "REGION": "Region",
+    "TIME": "Time",
+    "DEVICE": "Device"
+  }
+}
